@@ -1,0 +1,1 @@
+This is where all the text files are dumped by the dumpText.py script. 
