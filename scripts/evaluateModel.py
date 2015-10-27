@@ -46,13 +46,7 @@ if __name__ == "__main__":
 	nb_classes = 1000
 	y_predict_text = []
 	for q,an,im,i in zip(questions_val,answers_val,images_val,xrange(len(questions_val))):
-		if args.model.find('mlp') == 1:
-			x = computeVectors(q,an,im,VGGfeatures, nlp, img_map, labelencoder, nb_classes)
-		elif args.model.find('lstm') == 1:
-			x = computeVectorsTimeSeries(q,an,im,VGGfeatures, nlp, img_map, labelencoder, nb_classes)
-		else:
-			Exception('Unknown model type. Please check your model file')
-
+		x = computeVectors(q,an,im,VGGfeatures, nlp, img_map, labelencoder, nb_classes)
 		y_predict = model.predict_classes(x, verbose=0)
 		y_predict_text.append(labelencoder.inverse_transform(y_predict[-1]))
 		#print y_predict_text[-1]
