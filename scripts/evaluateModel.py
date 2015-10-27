@@ -44,18 +44,23 @@ if __name__ == "__main__":
 	print 'loaded word2vec features'
 
 	nb_classes = 1000
+	f1 = open(args.results, 'w')
+
 	y_predict_text = []
 	for q,an,im,i in zip(questions_val,answers_val,images_val,xrange(len(questions_val))):
 		x = computeVectors(q,an,im,VGGfeatures, nlp, img_map, labelencoder, nb_classes)
 		y_predict = model.predict_classes(x, verbose=0)
 		y_predict_text.append(labelencoder.inverse_transform(y_predict[-1]))
-		#print y_predict_text[-1]
+
+		f1.write(y_predict_text[-1])
+		f1.write('\n')
+
 		if i%100 == 0:
 			print i
 
 	correct_val=0
 	incorrect_val=0
-	f1 = open(args.results, 'w')
+	
 
 	for prediction,truth in zip(y_predict_text, answers_val):
 		temp_count=0
@@ -68,10 +73,9 @@ if __name__ == "__main__":
 		else:
 			incorrect_val+=1
 		#print type(prediction)
-		f1.write(prediction[-1])
-		f1.write('\n')
 
 	f1.write(str(float(correct_val)/(incorrect_val+correct_val)))
+	f1.close()
 	print float(correct_val)/(incorrect_val+correct_val)
 
 
