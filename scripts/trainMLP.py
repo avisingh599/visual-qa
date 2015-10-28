@@ -13,7 +13,7 @@ from keras.utils import np_utils, generic_utils
 from sklearn import preprocessing
 from sklearn.externals import joblib
 
-from spacy.en import English
+from gensim.models import Word2Vec
 
 from features import computeVectorsBatch
 from utils import grouper, selectFrequentAnswers
@@ -39,10 +39,8 @@ if __name__ == "__main__":
 	labelencoder.fit(answers_train)
 	nb_classes = len(list(labelencoder.classes_))
 	joblib.dump(labelencoder,'../models/labelencoder.pkl')
-	#y_train = le.transform(answers_train)
-	#Y_train = np_utils.to_categorical(y_train, nb_classes)
 
-	#define model, in this case an MLP
+	#defining the model
 	img_dim = 4096
 	word_vec_dim = 300
 	model = Sequential()
@@ -50,12 +48,11 @@ if __name__ == "__main__":
 		model.add(Dense(args.num_hidden_units, input_dim=img_dim+word_vec_dim, init='uniform'))
 		model.add(Activation(args.activation))
 		model.add(Dropout(args.dropout))
-
-
 	model.add(Dense(nb_classes, init='uniform'))
 	model.add(Activation('softmax'))
 	json_string = model.to_json()
-	open('../models/mlp_full_num_hidden_units_1000.json', 'w').write(json_string)
+	model_file_name = '../models/mlp_num_hidden_units_' + str(args.num_hidden_units) + '_num_hidden_layers_' + str(args.num_hidden_layers)
+	open(model_file_name  + '.json', 'w').write(json_string)
 
 	print 'Compiling model...'
 	model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
@@ -70,12 +67,12 @@ if __name__ == "__main__":
 		id_split = ids.split()
 		id_map[id_split[0]] = int(id_split[1])
 
-	nlp = English()
-	print 'loaded word2vec features...'
+	word_vectors = Word2Vec.load('../features/questionstrain2014_word_vector.bin')
+	print 'Loaded word vectors...'
 	## training
 	batchSize = 128
 	print 'Training started...'
-	numEpochs = 50
+	numEpochs = 100
 	for k in xrange(numEpochs):
 		#shuffle the data points before going through them
 		index_shuf = range(len(questions_train))
@@ -85,9 +82,11 @@ if __name__ == "__main__":
 		images_train = [images_train[i] for i in index_shuf]
 		progbar = generic_utils.Progbar(len(questions_train))
 		for qu,an,im in zip(grouper(questions_train, batchSize, fillvalue=questions_train[0]), grouper(answers_train, batchSize, fillvalue=answers_train[0]), grouper(images_train, batchSize, fillvalue=images_train[0])):
-			X_batch, Y_batch = computeVectorsBatch(qu,an,im,VGGfeatures,nlp,id_map,labelencoder,nb_classes)
+			X_batch, Y_batch = computeVectorsBatch(qu,an,im,VGGfeatures,word_vectors,id_map,labelencoder,nb_classes)
 			loss = model.train_on_batch(X_batch, Y_batch)
 			progbar.add(batchSize, values=[("train loss", loss)])
-		#print type(loss)
+		
 		if k%10 == 0:
-			model.save_weights('../models/mlp_epoch_{:02d}_loss_{:.2f}.hdf5'.format(k,float(loss)) )
+			model.save_weights(model_file_name + '_epoch_{:02d}_loss_{:.2f}.hdf5'.format(k,float(loss)) )
+
+	model.save_weights(model_file_name + '_epoch_{:02d}_loss_{:.2f}.hdf5'.format(k+1,float(loss)) )
