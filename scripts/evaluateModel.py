@@ -3,7 +3,7 @@ import argparse
 
 from keras.models import model_from_json
 
-from spacy.en import English
+from gensim.models import Word2Vec
 import numpy as np
 import scipy.io
 from sklearn.externals import joblib
@@ -40,15 +40,15 @@ if __name__ == "__main__":
 		id_split = ids.split()
 		img_map[id_split[0]] = int(id_split[1])
 
-	nlp = English()
-	print 'loaded word2vec features'
+	word_vectors = Word2Vec.load('../features/questionstrain2014_word_vector.bin')
+	print 'loaded word vectors...'
 
 	nb_classes = 1000
 	f1 = open(args.results, 'w')
 
 	y_predict_text = []
 	for q,an,im,i in zip(questions_val,answers_val,images_val,xrange(len(questions_val))):
-		x = computeVectors(q,an,im,VGGfeatures, nlp, img_map, labelencoder, nb_classes)
+		x = computeVectors(q,an,im,VGGfeatures, word_vectors, img_map, labelencoder, nb_classes)
 		y_predict = model.predict_classes(x, verbose=0)
 		y_predict_text.append(labelencoder.inverse_transform(y_predict[-1]))
 
