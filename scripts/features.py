@@ -3,9 +3,9 @@ from keras.utils import np_utils
 
 
 def question2VecTimeSeries(nlp, q, featureDim, maxLen):
-	
-	outputvec = np.zeros((maxLen, featureDim))
 	doc = nlp(q)
+	outputvec = np.zeros((maxLen, featureDim))
+	
 	for i in xrange(len(doc)):
 		if i<maxLen:
 			outputvec[i, :] = doc[i].vector
@@ -53,6 +53,17 @@ def computeVectorsBatch(qu,an,img,VGGfeatures,nlp,img_map,encoder,nb_classes):
 	for i in xrange(len(qu)):
 		features[i,:word2vecDim] = question2VecSum(nlp,qu[i],word2vecDim)
 		features[i,word2vecDim:] = VGGfeatures[:,img_map[img[i]]]
+
+	y = encoder.transform(an)
+	Y = np_utils.to_categorical(y, nb_classes)
+
+	return (features, Y)
+
+def computeLanguageVectorsBatch(qu,an,nlp,encoder,nb_classes):
+	word2vecDim = 300
+	features = np.zeros((len(qu),word2vecDim))
+	for i in xrange(len(qu)):
+		features[i,:word2vecDim] = question2VecSum(nlp,qu[i],word2vecDim)
 
 	y = encoder.transform(an)
 	Y = np_utils.to_categorical(y, nb_classes)
