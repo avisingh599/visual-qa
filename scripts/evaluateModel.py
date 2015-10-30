@@ -1,6 +1,6 @@
 import sys
 import argparse
-
+from progressbar import Bar, ETA, Percentage, ProgressBar    
 from keras.models import model_from_json
 
 from spacy.en import English
@@ -8,11 +8,10 @@ import numpy as np
 import scipy.io
 from sklearn.externals import joblib
 
-from features import computeVectors, computeVectorsTimeSeries
+from features import get_questions_matrix_sum, get_images_matrix, get_answers_matrix
+from utils import grouper
 
-
-if __name__ == "__main__":
-
+def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-model', type=str, required=True)
 	parser.add_argument('-weights', type=str, required=True)
@@ -44,23 +43,24 @@ if __name__ == "__main__":
 	print 'loaded word2vec features'
 
 	nb_classes = 1000
-	f1 = open(args.results, 'w')
-
 	y_predict_text = []
-	for q,an,im,i in zip(questions_val,answers_val,images_val,xrange(len(questions_val))):
-		x = computeVectors(q,an,im,VGGfeatures, nlp, img_map, labelencoder, nb_classes)
-		y_predict = model.predict_classes(x, verbose=0)
-		y_predict_text.append(labelencoder.inverse_transform(y_predict[-1]))
+	batchSize = 128
+	widgets = ['Evaluating ', Percentage(), ' ', Bar(marker='#',left='[',right=']'),
+           ' ', ETA()]
+	pbar = ProgressBar(widgets=widgets)
 
-		f1.write(y_predict_text[-1])
-		f1.write('\n')
-
-		if i%100 == 0:
-			print i
+	for qu_batch,an_batch,im_batch in pbar(zip(grouper(questions_val, batchSize, fillvalue=questions_val[0]), 
+												grouper(answers_val, batchSize, fillvalue=answers_val[0]), 
+												grouper(images_val, batchSize, fillvalue=images_val[0]))):
+		X_i_batch = get_images_matrix(im_batch, img_map , VGGfeatures)
+		X_q_batch = get_questions_matrix_sum(qu_batch, nlp)
+		X_batch = np.hstack((X_q_batch, X_i_batch))
+		y_predict = model.predict_classes(X_batch, verbose=0)
+		y_predict_text.extend(labelencoder.inverse_transform(y_predict))
 
 	correct_val=0
-	incorrect_val=0
-	
+	incorrect_val=0	
+	f1 = open(args.results, 'w')
 
 	for prediction,truth in zip(y_predict_text, answers_val):
 		temp_count=0
@@ -72,12 +72,13 @@ if __name__ == "__main__":
 			correct_val+=1
 		else:
 			incorrect_val+=1
-		#print type(prediction)
 
-	f1.write(str(float(correct_val)/(incorrect_val+correct_val)))
+		f1.write(prediction)
+		f1.write('\n')
+
+	f1.write('Final Accuracy is ' + str(float(correct_val)/(incorrect_val+correct_val)))
 	f1.close()
-	print float(correct_val)/(incorrect_val+correct_val)
+	print 'Final Accuracy on the validation set is', float(correct_val)/(incorrect_val+correct_val)
 
-
-
-
+if __name__ == "__main__":
+	main()
