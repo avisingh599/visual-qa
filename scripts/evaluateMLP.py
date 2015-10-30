@@ -52,9 +52,12 @@ def main():
 	for qu_batch,an_batch,im_batch in pbar(zip(grouper(questions_val, batchSize, fillvalue=questions_val[0]), 
 												grouper(answers_val, batchSize, fillvalue=answers_val[0]), 
 												grouper(images_val, batchSize, fillvalue=images_val[0]))):
-		X_i_batch = get_images_matrix(im_batch, img_map , VGGfeatures)
 		X_q_batch = get_questions_matrix_sum(qu_batch, nlp)
-		X_batch = np.hstack((X_q_batch, X_i_batch))
+		if 'language_only' in args.model:
+			X_batch = X_q_batch
+		else:
+			X_i_batch = get_images_matrix(im_batch, img_map , VGGfeatures)
+			X_batch = np.hstack((X_q_batch, X_i_batch))
 		y_predict = model.predict_classes(X_batch, verbose=0)
 		y_predict_text.extend(labelencoder.inverse_transform(y_predict))
 
