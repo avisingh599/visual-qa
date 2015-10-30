@@ -74,7 +74,7 @@ if __name__ == "__main__":
 	## training
 	batchSize = 128
 	print 'Training started...'
-	numEpochs = 10
+	numEpochs = 100
 	for k in xrange(numEpochs):
 		#shuffle the data points before going through them
 		index_shuf = range(len(questions_train))
@@ -88,4 +88,4 @@ if __name__ == "__main__":
 			X_i_batch, X_q_batch, Y_batch = computeVectorsBatchTimeSeries(qu,an,im,VGGfeatures,img_map,nlp,labelencoder,nb_classes, maxLen)
 			loss = model.train_on_batch([X_i_batch,X_q_batch], Y_batch)
 			progbar.add(batchSize, values=[("train loss", loss)])
-		model.save_weights('../models/lstm_2_epoch_{:02d}_loss_{:.2f}.hdf5'.format(k,float(loss)))
+		model.save_weights('../models/lstm_2_epoch_{:02d}_loss_{:.2f}.h5'.format(k,float(loss)))

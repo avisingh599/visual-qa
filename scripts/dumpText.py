@@ -38,12 +38,14 @@ if __name__ == "__main__":
 		questions_file = open('../data/preprocessed/questions_train2014.txt', 'w')
 		answers_file = open('../data/preprocessed/answers_train2014.txt', 'w')
 		coco_image_id = open('../data/preprocessed/images_train2014.txt', 'w')
+		trainval = 'training data'
 	else:
 		annFile = '../data/Annotations_Val_mscoco/mscoco_val2014_annotations.json'
 		quesFile = '../data/Questions_Val_mscoco/OpenEnded_mscoco_val2014_questions.json'
 		questions_file = open('../data/preprocessed/questions_val2014.txt', 'w')
 		answers_file = open('../data/preprocessed/answers_val2014.txt', 'w')
 		coco_image_id = open('../data/preprocessed/images_val2014.txt', 'w')
+		trainval = 'validation data'
 
 	#initialize VQA api for QA annotations
 	vqa=VQA(annFile, quesFile)
@@ -62,4 +64,4 @@ if __name__ == "__main__":
 			answers_file.write(getAllAnswer(qa[i+248349]['answers']).encode('utf8'))
 		answers_file.write('\n'.encode('utf8'))
 
-	print 'completed dumping', qora
+	print 'completed dumping', trainval

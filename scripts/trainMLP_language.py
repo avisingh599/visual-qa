@@ -27,7 +27,6 @@ def main():
 	questions_train = open('../data/preprocessed/questions_train2014.txt', 'r').read().decode('utf8').splitlines()
 	answers_train = open('../data/preprocessed/answers_train2014.txt', 'r').read().decode('utf8').splitlines()
 	images_train = open('../data/preprocessed/images_train2014.txt', 'r').read().decode('utf8').splitlines()
-	vgg_model_path = '../features/coco/vgg_feats.mat'
 	maxAnswers = 1000
 	questions_train, answers_train, images_train = selectFrequentAnswers(questions_train,answers_train,images_train, maxAnswers)
 

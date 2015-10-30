@@ -59,14 +59,15 @@ def computeVectorsBatch(qu,an,img,VGGfeatures,nlp,img_map,encoder,nb_classes):
 
 	return (features, Y)
 
-def computeLanguageVectorsBatch(qu,an,nlp,encoder,nb_classes):
+def computeLanguageVectorsBatch(qu,nlp,an=None,encoder=None,nb_classes=None):
 	word2vecDim = 300
 	features = np.zeros((len(qu),word2vecDim))
 	for i in xrange(len(qu)):
 		features[i,:word2vecDim] = question2VecSum(nlp,qu[i],word2vecDim)
 
-	y = encoder.transform(an)
-	Y = np_utils.to_categorical(y, nb_classes)
+	if an!=None and encoder!=None and nb_classes!=None
+		y = encoder.transform(an)
+		Y = np_utils.to_categorical(y, nb_classes)
 
 	return (features, Y)
 
