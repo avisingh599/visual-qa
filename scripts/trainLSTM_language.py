@@ -14,7 +14,7 @@ from sklearn.externals import joblib
 
 from spacy.en import English
 
-from features_2 import computeLanguageVectorsTimeSeries
+from features import get_questions_tensor_timeseries, get_answers_matrix
 from utils import grouper, selectFrequentAnswers
 
 def main():
@@ -26,11 +26,15 @@ def main():
 	args = parser.parse_args()
 
 	questions_train = open('../data/preprocessed/questions_train2014.txt', 'r').read().decode('utf8').splitlines()
+	questions_lengths_train = open('../data/preprocessed/questions_lengths_train2014.txt', 'r').read().decode('utf8').splitlines()
 	answers_train = open('../data/preprocessed/answers_train2014.txt', 'r').read().decode('utf8').splitlines()
 	images_train = open('../data/preprocessed/images_train2014.txt', 'r').read().decode('utf8').splitlines()
 	max_answers = 1000
 	questions_train, answers_train, images_train = selectFrequentAnswers(questions_train,answers_train,images_train, max_answers)
 
+	print 'Loaded questions, sorting by length...'
+	questions_lengths_train2014, questions_train, answers_train = (list(t) for t in zip(*sorted(zip(questions_lengths_train, questions_train, answers_train))))
+	
 	#encode the remaining answers
 	labelencoder = preprocessing.LabelEncoder()
 	labelencoder.fit(answers_train)
@@ -58,22 +62,27 @@ def main():
 	#set up word vectors
 	nlp = English()
 	print 'loaded word2vec features...'
+
 	## training
 	print 'Training started...'
 	numEpochs = 50
+	model_save_interval = 1
+	batchSize = 128
 	for k in xrange(numEpochs):
-		#shuffle the data points before going through them
-		index_shuf = range(len(questions_train))
-		shuffle(index_shuf)
-		questions_train = [questions_train[i] for i in index_shuf]
-		answers_train = [answers_train[i] for i in index_shuf]
+
 		progbar = generic_utils.Progbar(len(questions_train))
-		for qu,an in zip(questions_train,answers_train):
-			X_batch, Y_batch = computeLanguageVectorsTimeSeries(qu,an,nlp,labelencoder,nb_classes, max_len)
-			loss = model.train_on_batch(X_batch, Y_batch)
-			progbar.add(1, values=[("train loss", loss)])
-		#print type(loss)
-		if k%10 == 0:
+
+		for qu_batch,an_batch,im_batch in zip(grouper(questions_train, batchSize, fillvalue=questions_train[0]), 
+												grouper(answers_train, batchSize, fillvalue=answers_train[0]), 
+												grouper(images_train, batchSize, fillvalue=images_train[0])):
+			timesteps = len(nlp(qu_batch[-1])) #questions sorted in descending order of length
+			X_q_batch = get_questions_tensor_timeseries(qu_batch, nlp, timesteps)
+			Y_batch = get_answers_matrix(an_batch, labelencoder)
+			loss = model.train_on_batch(X_q_batch, Y_batch)
+			progbar.add(batchSize, values=[("train loss", loss)])
+
+		
+		if k%model_save_interval == 0:
 			model.save_weights(model_file_name + '_epoch_{:02d}_loss_{:.2f}.hdf5'.format(k,float(loss)))
 
 	model.save_weights(model_file_name + '_epoch_{:02d}_loss_{:.2f}.hdf5'.format(k+1,float(loss)))
