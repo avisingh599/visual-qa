@@ -85,7 +85,7 @@ def main():
 		for qu_batch,an_batch,im_batch in zip(grouper(questions_train, batchSize, fillvalue=questions_train[0]), grouper(answers_train, batchSize, fillvalue=answers_train[0]), grouper(images_train, batchSize, fillvalue=images_train[0])):
 			X_i_batch = get_images_matrix(im_batch, id_map, VGGfeatures)
 			X_q_batch = get_questions_matrix_sum(qu_batch, nlp)
-			X_batch = np.hstack((X_i_batch, X_q_batch))
+			X_batch = np.hstack((X_q_batch, X_i_batch))
 			Y_batch = get_answers_matrix(an_batch, labelencoder)
 			loss = model.train_on_batch(X_batch, Y_batch)
 			progbar.add(batchSize, values=[("train loss", loss)])
