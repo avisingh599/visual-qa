@@ -2,85 +2,86 @@ import numpy as np
 from keras.utils import np_utils
 
 
-def question2VecTimeSeries(nlp, q, featureDim, maxLen):
-	doc = nlp(q)
-	outputvec = np.zeros((maxLen, featureDim))
+def get_questions_tensor_timeseries(questions, nlp, timesteps):
+	'''
+	Returns a time series of word vectors for tokens in the question
+
+	Input:
+	questions: list of unicode objects
+	nlp: an instance of the class English() from spacy.en
+	timesteps: the number of 
+
+	Output:
+	A numpy ndarray of shape: (nb_samples, timesteps, word_vec_dim)
+	'''
+	assert not isinstance(questions, basestring)
+	nb_samples = len(questions)
+	word_vec_dim = nlp(questions[0])[0].vector.shape[0]
+	questions_tensor = np.zeros((nb_samples, timesteps, word_vec_dim))
+	for i in xrange(len(questions)):
+		tokens = nlp(questions[i])
+		for j in xrange(len(tokens)):
+			if j<timesteps:
+				questions_tensor[i,j,:] = tokens[j].vector
+
+	return questions_tensor
+
+def get_questions_matrix_sum(questions, nlp):
+	'''
+	Sums the word vectors of all the tokens in a question
 	
-	for i in xrange(len(doc)):
-		if i<maxLen:
-			outputvec[i, :] = doc[i].vector
+	Input:
+	questions: list of unicode objects
+	nlp: an instance of the class English() from spacy.en
 
-	return outputvec
+	Output:
+	A numpy array of shape: (nb_samples, word_vec_dim)	
+	'''
+	assert not isinstance(questions, basestring)
+	nb_samples = len(questions)
+	word_vec_dim = nlp(questions[0])[0].vector.shape[0]
+	questions_matrix = np.zeros((nb_samples, word_vec_dim))
+	for i in xrange(len(questions)):
+		tokens = nlp(questions[i])
+		for j in xrange(len(tokens)):
+			questions_matrix[i,:] += tokens[j].vector
 
-def question2VecSum(nlp, q, featureDim):
-	outputvec = np.zeros((featureDim,))
-	try:
-		doc = nlp(q)
-	except:
-		print 'error parsing in spacy:'
-		print q
-		return outputvec
+	return questions_matrix
 
-	for i in xrange(len(doc)):
-		outputvec += doc[i].vector
+def get_answers_matrix(answers, encoder):
+	'''
+	Converts string objects to class labels
 
-	return outputvec
+	Input:
+	answers:	a list of unicode objects
+	encoder:	a scikit-learn LabelEncoder object
 
-def computeVectors(qu,an,img,VGGfeatures,nlp,img_map,encoder,nb_classes):
-	features = np.zeros((1,4096+300))
-	
-	features[0,0:300] = question2VecSum(nlp,qu,300)
-	features[0,300:] = VGGfeatures[:,img_map[img]]
-
-	return features
-
-def computeVectorsTimeSeries(qu,an,img,VGGfeatures,nlp,img_map,encoder,nb_classes, maxLen):
-	featureDim = 300
-	img_dim = 4096
-	features_q = np.zeros((1, maxLen, featureDim))
-	features_i = np.zeros((1, img_dim))
-
-	features_q[0,:,:] = question2VecSum(nlp,qu,300)
-	features_i[0,:] = VGGfeatures[:,img_map[img]]
-
-	return features_i,features_q
-
-
-def computeVectorsBatch(qu,an,img,VGGfeatures,nlp,img_map,encoder,nb_classes):
-	word2vecDim = 300
-	img_dim = VGGfeatures.shape[0]
-	features = np.zeros((len(qu),img_dim+word2vecDim))
-	for i in xrange(len(qu)):
-		features[i,:word2vecDim] = question2VecSum(nlp,qu[i],word2vecDim)
-		features[i,word2vecDim:] = VGGfeatures[:,img_map[img[i]]]
-
-	y = encoder.transform(an)
+	Output:
+	A numpy array of shape (nb_samples, nb_classes)
+	'''
+	assert not isinstance(answers, basestring)
+	y = encoder.transform(answers) #string to numerical class
+	nb_classes = encoder.classes_.shape[0]
 	Y = np_utils.to_categorical(y, nb_classes)
+	return Y
 
-	return (features, Y)
+def get_images_matrix(img_coco_ids, img_map, VGGfeatures):
+	'''
+	Input:
+	img_coco_ids: 	A list of strings, each string corresponding to
+				  	the MS COCO Id of the relevant image
+	img_map: 		A dictionary that maps the COCO Ids to their indexes 
+					in the pre-computed VGG features matrix
+	VGGfeatures: 	A numpy array of shape (nb_dimensions,nb_images)
 
-def computeLanguageVectorsBatch(qu,nlp,an=None,encoder=None,nb_classes=None):
-	word2vecDim = 300
-	features = np.zeros((len(qu),word2vecDim))
-	for i in xrange(len(qu)):
-		features[i,:word2vecDim] = question2VecSum(nlp,qu[i],word2vecDim)
+	Ouput:
+	A numpy matrix of size (nb_samples, nb_dimensions)
+	'''
+	assert not isinstance(img_coco_ids, basestring)
+	nb_samples = len(img_coco_ids)
+	nb_dimensions = VGGfeatures.shape[0]
+	image_matrix = np.zeros((nb_samples, nb_dimensions))
+	for j in xrange(len(img_coco_ids)):
+		image_matrix[j,:] = VGGfeatures[:,img_map[img_coco_ids[j]]]
 
-	if an!=None and encoder!=None and nb_classes!=None
-		y = encoder.transform(an)
-		Y = np_utils.to_categorical(y, nb_classes)
-
-	return (features, Y)
-
-def computeVectorsBatchTimeSeries(qu, an, img, VGGfeatures,img_map, nlp, encoder, nb_classes, maxLen):
-	featureDim = 300
-	img_dim = VGGfeatures.shape[0]
-	
-	features_q = np.zeros((len(qu), maxLen, featureDim))
-	features_i = np.zeros((len(qu), img_dim))
-	for i in xrange(len(qu)):
-		features_q[i,:,:] = question2VecTimeSeries(nlp, qu[i], featureDim, maxLen)
-		features_i[i,:] = VGGfeatures[:,img_map[img[i]]]
-
-	y = encoder.transform(an)
-	Y = np_utils.to_categorical(y, nb_classes)
-	return (features_i, features_q, Y)
+	return image_matrix
