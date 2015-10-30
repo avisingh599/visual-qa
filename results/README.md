@@ -1,0 +1,1 @@
+This folder contains the predictions made by the different models for the different models. The ```overall_results.txt``` contains the performance of all the individual models.

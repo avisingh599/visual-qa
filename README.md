@@ -12,5 +12,5 @@ This project uses Keras to train a variety of **Feedforward** and **Recurrent Ne
 ###Notes:
 1. Keras needs the latest Theano, which in turn needs Numpy/Scipy. 
 2. Also, if you want GPU acceleration (which is definitely needed when running on the entire VQA dataset), then you must install the CUDA and the appropriate drivers for your GPU.
-3. spaCy is currently used only for converting questions to a vector (or a sequence of vector), this dependency can be easily be removed if you want to.
+3. spaCy is currently used only for converting questions to a vector (or a sequence of vectors), this dependency can be easily be removed if you want to.
 
