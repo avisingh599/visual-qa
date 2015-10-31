@@ -33,7 +33,7 @@ def main():
 	questions_train, answers_train, images_train = selectFrequentAnswers(questions_train,answers_train,images_train, max_answers)
 
 	print 'Loaded questions, sorting by length...'
-	questions_lengths_train2014, questions_train, answers_train = (list(t) for t in zip(*sorted(zip(questions_lengths_train, questions_train, answers_train))))
+	questions_lengths_train, questions_train, answers_train = (list(t) for t in zip(*sorted(zip(questions_lengths_train, questions_train, answers_train))))
 	
 	#encode the remaining answers
 	labelencoder = preprocessing.LabelEncoder()
@@ -52,7 +52,7 @@ def main():
 	model.add(Activation('softmax'))
 
 	json_string = model.to_json()
-	model_file_name = '../models/lstm_language_num_hidden_units_' + str(args.num_hidden_units) + '_num_lstm_layers_' + str(args.num_lstm_layers) + '_dropout_' + str(args.dropout)
+	model_file_name = '../models/lstm_language_only_num_hidden_units_' + str(args.num_hidden_units) + '_num_lstm_layers_' + str(args.num_lstm_layers) + '_dropout_' + str(args.dropout)
 	open(model_file_name  + '.json', 'w').write(json_string)
 	
 	print 'Compiling model...'
@@ -66,7 +66,7 @@ def main():
 	## training
 	print 'Training started...'
 	numEpochs = 50
-	model_save_interval = 1
+	model_save_interval = 5
 	batchSize = 128
 	for k in xrange(numEpochs):
 
