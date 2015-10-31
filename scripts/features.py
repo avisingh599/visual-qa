@@ -67,6 +67,9 @@ def get_answers_matrix(answers, encoder):
 
 def get_images_matrix(img_coco_ids, img_map, VGGfeatures):
 	'''
+	Gets the 4096-dimensional CNN features for the given COCO
+	images
+	
 	Input:
 	img_coco_ids: 	A list of strings, each string corresponding to
 				  	the MS COCO Id of the relevant image
