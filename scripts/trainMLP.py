@@ -22,7 +22,7 @@ def main():
 
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-num_hidden_units', type=int, default=1024)
-	parser.add_argument('-num_hidden_layers', type=int, default=2)
+	parser.add_argument('-num_hidden_layers', type=int, default=3)
 	parser.add_argument('-dropout', type=float, default=0.5)
 	parser.add_argument('-activation', type=str, default='tanh')
 	parser.add_argument('-language_only', type=bool, default= False)
@@ -63,7 +63,7 @@ def main():
 	model.add(Activation(args.activation))
 	if args.dropout>0:
 		model.add(Dropout(args.dropout))
-	for i in xrange(args.num_hidden_layers):
+	for i in xrange(args.num_hidden_layers-1):
 		model.add(Dense(args.num_hidden_units, init='uniform'))
 		model.add(Activation(args.activation))
 		if args.dropout>0:
