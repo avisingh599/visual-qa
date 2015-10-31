@@ -1,9 +1,10 @@
 import numpy as np
 import scipy.io
-from random import shuffle
+import sys
+import argparse
 
 from keras.models import Sequential
-from keras.layers.core import Dense, Activation, Merge, RepeatVector
+from keras.layers.core import Dense, Activation, Merge, Dropout
 from keras.layers.recurrent import LSTM
 from keras.utils import np_utils, generic_utils
 from keras.callbacks import ModelCheckpoint, RemoteMonitor
@@ -13,23 +14,35 @@ from sklearn import preprocessing
 
 from spacy.en import English
 
-from features import computeVectorsBatchTimeSeries
 from utils import grouper, selectFrequentAnswers
+from features import get_images_matrix, get_answers_matrix, get_questions_tensor_timeseries
 
-if __name__ == "__main__":
 
-	featureDim= 300
-	maxLen = 20
+def main():
+	parser = argparse.ArgumentParser()
+	parser.add_argument('-num_hidden_units_mlp', type=int, default=1024)
+	parser.add_argument('-num_hidden_units_lstm', type=int, default=512)
+	parser.add_argument('-num_hidden_layers_mlp', type=int, default=3)
+	parser.add_argument('-dropout', type=float, default=0.5)
+	parser.add_argument('-activation_mlp', type=str, default='tanh')
+	#TODO Feature parser.add_argument('-language_only', type=bool, default= False)
+	args = parser.parse_args()
+
+	word_vec_dim= 300
+	img_dim = 4096
+	max_len = 30
 	nb_classes = 1000
 
 	#get the data
 	questions_train = open('../data/preprocessed/questions_train2014.txt', 'r').read().decode('utf8').splitlines()
+	questions_lengths_train = open('../data/preprocessed/questions_lengths_train2014.txt', 'r').read().decode('utf8').splitlines()
 	answers_train = open('../data/preprocessed/answers_train2014.txt', 'r').read().decode('utf8').splitlines()
 	images_train = open('../data/preprocessed/images_train2014.txt', 'r').read().decode('utf8').splitlines()
 	vgg_model_path = '../features/coco/vgg_feats.mat'
 
 	maxAnswers = 1000
 	questions_train, answers_train, images_train = selectFrequentAnswers(questions_train,answers_train,images_train, maxAnswers)
+	questions_lengths_train, questions_train, answers_train, images_train = (list(t) for t in zip(*sorted(zip(questions_lengths_train, questions_train, answers_train, images_train))))
 
 	#encode the remaining answers
 	labelencoder = preprocessing.LabelEncoder()
@@ -37,23 +50,28 @@ if __name__ == "__main__":
 	nb_classes = len(list(labelencoder.classes_))
 	joblib.dump(labelencoder,'../models/labelencoder.pkl')
 	#defining our LSTM based model
-	numHiddenUnits = 512
 	image_model = Sequential()
-	image_model.add(Dense(featureDim, input_dim=4096, init='uniform', activation='linear'))
+	image_model.add(Dense(img_dim, input_dim=img_dim, init='uniform', activation='linear'))
 	#print image_model.output_shape
 	#512 hidden units in LSTM layer. 300-dimnensional word vectors.
 	language_model = Sequential()
-	language_model.add(LSTM(output_dim = numHiddenUnits, return_sequences=False, input_shape=(maxLen, featureDim)))
+	language_model.add(LSTM(output_dim = args.num_hidden_units_lstm, return_sequences=False, input_shape=(max_len, word_vec_dim)))
 	#print language_model.output_shape
 
 	model = Sequential()
-	model.add(Merge([image_model, language_model], mode='concat', concat_axis=1))
-	#print model.output_shape
+	model.add(Merge([language_model, image_model], mode='concat', concat_axis=1))
+	print model.output_shape
+	for i in xrange(args.num_hidden_layers_mlp):
+		model.add(Dense(args.num_hidden_units_mlp, init='uniform'))
+		model.add(Activation(args.activation_mlp))
+		model.add(Dropout(args.dropout))
+
 	model.add(Dense(nb_classes))
 	model.add(Activation('softmax'))
 
 	json_string = model.to_json()
-	open('../models/lstm_1_full_numHiddenUnits_512.json', 'w').write(json_string)
+	model_file_name = '../models/lstm_1_num_hidden_units_' + str(args.num_hidden_units_lstm) 
+	open(model_file_name + '.json', 'w').write(json_string)
 
 	model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
 	print 'Compilation done'
@@ -70,20 +88,29 @@ if __name__ == "__main__":
 	nlp = English()
 	print 'loaded word2vec features...'
 	## training
-	batchSize = 128
 	print 'Training started...'
-	numEpochs = 10
+	numEpochs = 100
+	model_save_interval = 5
+	batchSize = 128
 	for k in xrange(numEpochs):
-		#shuffle the data points before going through them
-		index_shuf = range(len(questions_train))
-		shuffle(index_shuf)
-		questions_train = [questions_train[i] for i in index_shuf]
-		answers_train = [answers_train[i] for i in index_shuf]
-		images_train = [images_train[i] for i in index_shuf]
 
 		progbar = generic_utils.Progbar(len(questions_train))
-		for qu,an,im in zip(grouper(questions_train, batchSize, fillvalue=questions_train[0]), grouper(answers_train, batchSize, fillvalue=answers_train[0]), grouper(images_train, batchSize, fillvalue=images_train[0])):
-			X_i_batch, X_q_batch, Y_batch = computeVectorsBatchTimeSeries(qu,an,im,VGGfeatures,img_map,nlp,labelencoder,nb_classes, maxLen)
-			loss = model.train_on_batch([X_i_batch,X_q_batch], Y_batch)
+
+		for qu_batch,an_batch,im_batch in zip(grouper(questions_train, batchSize, fillvalue=questions_train[0]), 
+												grouper(answers_train, batchSize, fillvalue=answers_train[0]), 
+												grouper(images_train, batchSize, fillvalue=images_train[0])):
+			timesteps = len(nlp(qu_batch[-1])) #questions sorted in descending order of length
+			X_q_batch = get_questions_tensor_timeseries(qu_batch, nlp, timesteps)
+			X_i_batch = get_images_matrix(im_batch, img_map, VGGfeatures)
+			Y_batch = get_answers_matrix(an_batch, labelencoder)
+			loss = model.train_on_batch([X_q_batch, X_i_batch], Y_batch)
 			progbar.add(batchSize, values=[("train loss", loss)])
-		model.save_weights('../models/lstm_1_full_epoch_{:02d}_loss_{:.2f}.hdf5'.format(k,float(loss)))
+
+		
+		if k%model_save_interval == 0:
+			model.save_weights(model_file_name + '_epoch_{:02d}_loss_{:.2f}.hdf5'.format(k,float(loss)))
+
+	model.save_weights(model_file_name + '_epoch_{:02d}_loss_{:.2f}.hdf5'.format(k+1,float(loss)))
+	
+if __name__ == "__main__":
+	main()
