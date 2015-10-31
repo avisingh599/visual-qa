@@ -95,7 +95,7 @@ def main():
 	f1.write('Final Accuracy is ' + str(float(correct_val)/(incorrect_val+correct_val)))
 	f1.close()
 	f1 = open('../results/overall_results.txt', 'a')
-	f1.write(args.model + '\n')
+	f1.write(args.weights + '\n')
 	f1.write(str(float(correct_val)/(incorrect_val+correct_val)))
 	f1.close()
 	print 'Final Accuracy on the validation set is', float(correct_val)/(incorrect_val+correct_val)

@@ -83,9 +83,9 @@ def main():
 
 		
 		if k%model_save_interval == 0:
-			model.save_weights(model_file_name + '_epoch_{:02d}_loss_{:.2f}.hdf5'.format(k,float(loss)))
+			model.save_weights(model_file_name + '_epoch_{:02d}.hdf5'.format(k))
 
-	model.save_weights(model_file_name + '_epoch_{:02d}_loss_{:.2f}.hdf5'.format(k+1,float(loss)))
+	model.save_weights(model_file_name + '_epoch_{:02d}.hdf5'.format(k+1))
 
 if __name__ == "__main__":
 	main()
