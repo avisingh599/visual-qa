@@ -70,7 +70,7 @@ def main():
 	model.add(Activation('softmax'))
 
 	json_string = model.to_json()
-	model_file_name = '../models/lstm_1_num_hidden_units_' + str(args.num_hidden_units_lstm) 
+	model_file_name = '../models/lstm_1_num_hidden_units_lstm_' + str(args.num_hidden_units_lstm) + 'num_hidden_units_mlp_' + str(args.num_hidden_units_mlp) + 'num_hidden_layers_mlp_' + str(args.num_hidden_layers_mlp)
 	open(model_file_name + '.json', 'w').write(json_string)
 
 	model.compile(loss='categorical_crossentropy', optimizer='rmsprop')

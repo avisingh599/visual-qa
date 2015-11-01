@@ -68,7 +68,7 @@ def main():
 	incorrect_val=0	
 	f1 = open(args.results, 'w')
 
-	for prediction,truth in zip(y_predict_text, answers_val):
+	for prediction, truth, question, image in zip(y_predict_text, answers_val, questions_val, images_val):
 		temp_count=0
 		for _truth in truth.split(';'):
 			if prediction == _truth:
@@ -79,14 +79,21 @@ def main():
 		else:
 			incorrect_val+=1
 
+		f1.write(question.encode('utf-8'))
+		f1.write('\n')
+		f1.write(image.encode('utf-8'))
+		f1.write('\n')
 		f1.write(prediction)
+		f1.write('\n')
+		f1.write(truth.encode('utf-8'))
+		f1.write('\n')
 		f1.write('\n')
 
 	f1.write('Final Accuracy is ' + str(float(correct_val)/(incorrect_val+correct_val)))
 	f1.close()
 	f1 = open('../results/overall_results.txt', 'a')
 	f1.write(args.weights + '\n')
-	f1.write(str(float(correct_val)/(incorrect_val+correct_val)))
+	f1.write(str(float(correct_val)/(incorrect_val+correct_val)) + '\n')
 	f1.close()
 	print 'Final Accuracy on the validation set is', float(correct_val)/(incorrect_val+correct_val)
 

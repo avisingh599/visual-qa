@@ -12,9 +12,7 @@ from features import get_questions_tensor_timeseries, get_images_matrix, get_ans
 from utils import grouper
 
 def main():
-	'''
-	Currently works only with language-only models.
-	'''
+
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-model', type=str, required=True)
 	parser.add_argument('-weights', type=str, required=True)
@@ -35,7 +33,7 @@ def main():
 						'r').read().decode('utf8').splitlines()
 	vgg_model_path = '../features/coco/vgg_feats.mat'
 	
-	questions_lengths_val, questions_val, answers_val = (list(t) for t in zip(*sorted(zip(questions_lengths_val, questions_val, answers_val))))
+	questions_lengths_val, questions_val, answers_val, images_val = (list(t) for t in zip(*sorted(zip(questions_lengths_val, questions_val, answers_val, images_val))))
 
 	print 'Model compiled, weights loaded'
 	labelencoder = joblib.load('../models/labelencoder.pkl')
@@ -64,7 +62,11 @@ def main():
 												grouper(images_val, batchSize, fillvalue=images_val[0]))):
 		timesteps = len(nlp(qu_batch[-1])) #questions sorted in descending order of length
 		X_q_batch = get_questions_tensor_timeseries(qu_batch, nlp, timesteps)
-		X_batch = X_q_batch
+		if 'language_only' in args.model:
+			X_batch = X_q_batch
+		else:
+			X_i_batch = get_images_matrix(im_batch, img_map, VGGfeatures)
+			X_batch = [X_q_batch, X_i_batch]
 		y_predict = model.predict_classes(X_batch, verbose=0)
 		y_predict_text.extend(labelencoder.inverse_transform(y_predict))
 
@@ -96,7 +98,7 @@ def main():
 	f1.close()
 	f1 = open('../results/overall_results.txt', 'a')
 	f1.write(args.weights + '\n')
-	f1.write(str(float(correct_val)/(incorrect_val+correct_val)))
+	f1.write(str(float(correct_val)/(incorrect_val+correct_val)) + '\n')
 	f1.close()
 	print 'Final Accuracy on the validation set is', float(correct_val)/(incorrect_val+correct_val)
 
