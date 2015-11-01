@@ -4,7 +4,7 @@ import sys
 import argparse
 
 from keras.models import Sequential
-from keras.layers.core import Dense, Activation, Merge, Dropout
+from keras.layers.core import Dense, Activation, Merge, Dropout, Reshape
 from keras.layers.recurrent import LSTM
 from keras.utils import np_utils, generic_utils
 from keras.callbacks import ModelCheckpoint, RemoteMonitor
@@ -51,7 +51,7 @@ def main():
 	joblib.dump(labelencoder,'../models/labelencoder.pkl')
 	#defining our LSTM based model
 	image_model = Sequential()
-	image_model.add(Dense(img_dim, input_dim=img_dim, init='uniform', activation='linear'))
+	image_model.add(Reshape(input_shape = (img_dim,), dims=(img_dim,)))
 	#print image_model.output_shape
 	#512 hidden units in LSTM layer. 300-dimnensional word vectors.
 	language_model = Sequential()
@@ -90,7 +90,7 @@ def main():
 	## training
 	print 'Training started...'
 	numEpochs = 100
-	model_save_interval = 5
+	model_save_interval = 10
 	batchSize = 128
 	for k in xrange(numEpochs):
 
