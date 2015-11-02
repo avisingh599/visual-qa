@@ -65,7 +65,7 @@ def main():
 
 	## training
 	print 'Training started...'
-	numEpochs = 50
+	numEpochs = 100
 	model_save_interval = 5
 	batchSize = 128
 	for k in xrange(numEpochs):
