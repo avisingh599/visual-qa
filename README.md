@@ -26,7 +26,9 @@ Tested with Python 2.7 on Ubuntu 14.04 and Centos 7.1.
 ###Notes:
 1. Keras needs the latest Theano, which in turn needs Numpy/Scipy. 
 2. spaCy is currently used only for converting questions to a vector (or a sequence of vectors), this dependency can be easily be removed if you want to.
-3. spaCy uses Goldberg and Levy's word vectors by default, but I found the performance to be much superior with Stanford's [Glove word vectors]. 
+3. spaCy uses Goldberg and Levy's word vectors by default, but I found the performance to be much superior with Stanford's [Glove word vectors].
+
+##The numbers
 Performance on the validation set of the [VQA Challenge](http://visualqa.org/challenge.html):
 
 | Model     		   | Accuracy      |
@@ -35,7 +37,12 @@ Performance on the validation set of the [VQA Challenge](http://visualqa.org/cha
 | LSTM-Language only   | 42.51%        |
 | LSTM+CNN             | 47.80%        |
 
-![Validation Accuracy with number of epochs](https://raw.githubusercontent.com/avisingh599/homepage/master/images/vqa/learning_curve.jpg)
+There is a **lot** of scope for hyperparameter tuning here. Experiments were done for 100 epochs. 
+
+| Model     		   | Training Time on GTX 760|
+| ---------------------|:-----------------------:|
+| BOW+CNN              | 160 seconds/epoch       |
+| LSTM+CNN             | 200 seconds/epoch       |
 
 Notes:
 
