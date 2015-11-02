@@ -1,7 +1,6 @@
 #Deep Learning for Visual Question Answering
-![Results](https://raw.githubusercontent.com/avisingh599/homepage/master/images/vqa/sample_results.jpg)
 
-Accompanying blog post: 
+[Click here](https://avisingh599.github.io/deeplearning/visual-qa/) to go to the accompanying blog post. 
 
 This project uses Keras to train a variety of **Feedforward** and **Recurrent Neural Networks** for the task of Visual Question Answering. It is designed to work with the [VQA](http://visualqa.org) dataset. 
 
@@ -44,10 +43,12 @@ There is a **lot** of scope for hyperparameter tuning here. Experiments were don
 | BOW+CNN              | 160 seconds/epoch       |
 | LSTM+CNN             | 200 seconds/epoch       |
 
-Notes:
 
 ##Get Started
 Have a look at the `get_started.sh` script in the `scripts` folder. Also, have a look at the readme present in each of the folders.
+
+##Feedback
+All kind of feedback (code style, bugs, comments etc.) is welcome. Please open an issue on this repo instead of mailing me, since it helps me keep track of things better.
 
 ##License
 MIT
