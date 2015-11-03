@@ -28,7 +28,7 @@ Tested with Python 2.7 on Ubuntu 14.04 and Centos 7.1.
 3. spaCy uses Goldberg and Levy's word vectors by default, but I found the performance to be much superior with Stanford's [Glove word vectors].
 
 ##The numbers
-Performance on the validation set of the [VQA Challenge](http://visualqa.org/challenge.html):
+Performance on the **validation set** of the [VQA Challenge](http://visualqa.org/challenge.html):
 
 | Model     		   | Accuracy      |
 | ---------------------|:-------------:|

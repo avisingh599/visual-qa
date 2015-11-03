@@ -79,7 +79,7 @@ def main():
 	features_struct = scipy.io.loadmat(vgg_model_path)
 	VGGfeatures = features_struct['feats']
 	print 'loaded vgg features'
-	image_ids = open('../features/coco/coco_vgg_IDMap.txt').read().splitlines()
+	image_ids = open('../features/coco_vgg_IDMap.txt').read().splitlines()
 	img_map = {}
 	for ids in image_ids:
 		id_split = ids.split()
