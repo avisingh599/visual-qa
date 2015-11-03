@@ -4,11 +4,15 @@ chmod +x ../data/download.sh
 chmod +x ../3rdParty/download.sh
 chmod +x ../features/download.sh
 #download data and features
-../data/download.sh
-../3rdParty/download.sh
-../features/download.sh
+cd ../data/
+./download.sh
+cd ../3rdParty/
+./download.sh
+cd ../features/
+./download.sh
 
 #convert the data to a simpler format
+cd ../scripts
 python dumpText.py
 python dumpText.py -isTrain 0
 
