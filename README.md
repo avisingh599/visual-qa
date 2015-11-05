@@ -6,11 +6,10 @@ This project uses Keras to train a variety of **Feedforward** and **Recurrent Ne
 
 Models Implemented:
 
-1. A Feedforward Model
-![MLP Model](https://raw.githubusercontent.com/avisingh599/homepage/master/images/vqa/model_1.jpg)
+BOW+CNN Model  |  LSTM + CNN Model
+------------------------- |------------------------- 
 
-2. An LSTM-based model
-![LSTM Encoder](https://raw.githubusercontent.com/avisingh599/homepage/master/images/vqa/lstm_encoder.jpg)
+<img src="https://raw.githubusercontent.com/avisingh599/homepage/master/images/vqa/model_1.jpg" alt="alt text" width="400" height=""> | <img src="https://raw.githubusercontent.com/avisingh599/homepage/master/images/vqa/lstm_encoder.jpg" alt="alt text" width="300" height="whatever">
 
 
 ##Requirements
