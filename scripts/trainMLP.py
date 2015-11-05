@@ -106,7 +106,7 @@ def main():
 			progbar.add(batchSize, values=[("train loss", loss)])
 		#print type(loss)
 		if k%save_epoch_interval == 0:
-			model.save_weights(model_file_name + '_epoch_{:02d}'.format(k))
+			model.save_weights(model_file_name + '_epoch_{:02d}.hdf5'.format(k))
 
 	model.save_weights(model_file_name + '_epoch_{:02d}.hdf5'.format(k))
 
