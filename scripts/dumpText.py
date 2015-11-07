@@ -37,16 +37,16 @@ def main():
 	nlp = English() #used for conting number of tokens
 
 	if args.isTrain == 1:
-		annFile = '../data/Annotations_Train_mscoco/mscoco_train2014_annotations.json'
-		quesFile = '../data/Questions_Train_mscoco/OpenEnded_mscoco_train2014_questions.json'
+		annFile = '../data/mscoco_train2014_annotations.json'
+		quesFile = '../data/OpenEnded_mscoco_train2014_questions.json'
 		questions_file = open('../data/preprocessed/questions_train2014.txt', 'w')
 		questions_lengths_file = open('../data/preprocessed/questions_lengths_train2014.txt', 'w')
 		answers_file = open('../data/preprocessed/answers_train2014.txt', 'w')
 		coco_image_id = open('../data/preprocessed/images_train2014.txt', 'w')
 		trainval = 'training data'
 	else:
-		annFile = '../data/Annotations_Val_mscoco/mscoco_val2014_annotations.json'
-		quesFile = '../data/Questions_Val_mscoco/OpenEnded_mscoco_val2014_questions.json'
+		annFile = '../data/mscoco_val2014_annotations.json'
+		quesFile = '../data/OpenEnded_mscoco_val2014_questions.json'
 		questions_file = open('../data/preprocessed/questions_val2014.txt', 'w')
 		questions_lengths_file = open('../data/preprocessed/questions_lengths_val2014.txt', 'w')
 		answers_file = open('../data/preprocessed/answers_val2014.txt', 'w')
@@ -71,9 +71,9 @@ def main():
 		coco_image_id.write(str(q['image_id']).encode('utf8'))
 		coco_image_id.write('\n')
 		if args.isTrain:
-			answers_file.write(getModalAnswer(qa[i]['answers']).encode('utf8'))
+			answers_file.write(getModalAnswer(qa[q['question_id']]['answers']).encode('utf8'))
 		else:
-			answers_file.write(getAllAnswer(qa[i+248349]['answers']).encode('utf8'))
+			answers_file.write(getAllAnswer(qa[q['question_id']]['answers']).encode('utf8'))
 		answers_file.write('\n'.encode('utf8'))
 
 	print 'completed dumping', trainval
