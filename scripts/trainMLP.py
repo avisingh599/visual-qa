@@ -26,6 +26,9 @@ def main():
 	parser.add_argument('-dropout', type=float, default=0.5)
 	parser.add_argument('-activation', type=str, default='tanh')
 	parser.add_argument('-language_only', type=bool, default= False)
+	parser.add_argument('-num_epochs', type=int, default=100)
+	parser.add_argument('-model_save_interval', type=int, default=5)
+	parser.add_argument('-batch_size', type=int, default=128)
 	args = parser.parse_args()
 
 	questions_train = open('../data/preprocessed/questions_train2014.txt', 'r').read().decode('utf8').splitlines()
@@ -82,11 +85,8 @@ def main():
 	model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
 	print 'Compilation done...'
 	
-	batchSize = 128
 	print 'Training started...'
-	numEpochs = 100
-	save_epoch_interval = 10
-	for k in xrange(numEpochs):
+	for k in xrange(args.num_epochs):
 		#shuffle the data points before going through them
 		index_shuf = range(len(questions_train))
 		shuffle(index_shuf)
@@ -94,7 +94,9 @@ def main():
 		answers_train = [answers_train[i] for i in index_shuf]
 		images_train = [images_train[i] for i in index_shuf]
 		progbar = generic_utils.Progbar(len(questions_train))
-		for qu_batch,an_batch,im_batch in zip(grouper(questions_train, batchSize, fillvalue=questions_train[0]), grouper(answers_train, batchSize, fillvalue=answers_train[0]), grouper(images_train, batchSize, fillvalue=images_train[0])):
+		for qu_batch,an_batch,im_batch in zip(grouper(questions_train, args.batch_size, fillvalue=questions_train[-1]), 
+											grouper(answers_train, args.batch_size, fillvalue=answers_train[-1]), 
+											grouper(images_train, args.batch_size, fillvalue=images_train[-1])):
 			X_q_batch = get_questions_matrix_sum(qu_batch, nlp)
 			if args.language_only:
 				X_batch = X_q_batch
@@ -103,9 +105,9 @@ def main():
 				X_batch = np.hstack((X_q_batch, X_i_batch))
 			Y_batch = get_answers_matrix(an_batch, labelencoder)
 			loss = model.train_on_batch(X_batch, Y_batch)
-			progbar.add(batchSize, values=[("train loss", loss)])
+			progbar.add(args.batch_size, values=[("train loss", loss)])
 		#print type(loss)
-		if k%save_epoch_interval == 0:
+		if k%args.model_save_interval == 0:
 			model.save_weights(model_file_name + '_epoch_{:02d}.hdf5'.format(k))
 
 	model.save_weights(model_file_name + '_epoch_{:02d}.hdf5'.format(k))
