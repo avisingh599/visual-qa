@@ -27,7 +27,7 @@ Tested with Python 2.7 on Ubuntu 14.04 and Centos 7.1.
 3. spaCy uses Goldberg and Levy's word vectors by default, but I found the performance to be much superior with Stanford's [Glove word vectors](http://nlp.stanford.edu/projects/glove/).
 
 ##Installation Guide
-This project has a large number of dependecies, and I am yet to make a comprehensive installation guide. In the mearn while, you can use the follwing guide made by @gajumaru4444:
+This project has a large number of dependecies, and I am yet to make a comprehensive installation guide. In the meanwhile, you can use the following guide made by @gajumaru4444:
 
 1. [Prepare for VQA in Ubuntu 14.04 x64 Part 1](https://gajumaru4444.github.io/2015/11/10/Visual-Question-Answering-2.html)
 2. [Prepare for VQA in Ubuntu 14.04 x64 Part 2](https://gajumaru4444.github.io/2015/11/10/Visual-Question-Answering-3.html)
@@ -35,7 +35,7 @@ This project has a large number of dependecies, and I am yet to make a comprehen
 If you intend to use my pre-trained models, you would also need to replace spaCy's deafult word vectors with the GloVe word vectors from Stanford. You can find more details [here](http://spacy.io/tutorials/load-new-word-vectors/) on how to do this.
 
 ##Using Pre-trained models
-Take a look at `scripts/demo_batch.py`. An LSTM-based pre-trained model has been released. It currently works only on the images of the MS COCO dataset (need to be downloaded seperately). I do intend to add a pipeline for it to work for all images in general.
+Take a look at `scripts/demo_batch.py`. An LSTM-based pre-trained model has been released. It currently works only on the images of the MS COCO dataset (need to be downloaded separately), since I have pre-computed the VGG features for them. I do intend to add a pipeline for computing features for other images.
 
 **Caution**: Use the pre-trained model with 300D Common Crawl Glove Word Embeddings. Do not the the default spaCy embeddings (Goldberg and Levy 2014). If you try to use these pre-trained models with any embeddings except Glove, your results would be **garbage**. You can find more deatails [here](http://spacy.io/tutorials/load-new-word-vectors/) on how to do this. 
 
