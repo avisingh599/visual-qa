@@ -27,12 +27,12 @@ def main():
 	parser.add_argument('-activation', type=str, default='tanh')
 	parser.add_argument('-language_only', type=bool, default= False)
 	parser.add_argument('-num_epochs', type=int, default=100)
-	parser.add_argument('-model_save_interval', type=int, default=5)
+	parser.add_argument('-model_save_interval', type=int, default=10)
 	parser.add_argument('-batch_size', type=int, default=128)
 	args = parser.parse_args()
 
 	questions_train = open('../data/preprocessed/questions_train2014.txt', 'r').read().decode('utf8').splitlines()
-	answers_train = open('../data/preprocessed/answers_train2014.txt', 'r').read().decode('utf8').splitlines()
+	answers_train = open('../data/preprocessed/answers_train2014_modal.txt', 'r').read().decode('utf8').splitlines()
 	images_train = open('../data/preprocessed/images_train2014.txt', 'r').read().decode('utf8').splitlines()
 	vgg_model_path = '../features/coco/vgg_feats.mat'
 	maxAnswers = 1000

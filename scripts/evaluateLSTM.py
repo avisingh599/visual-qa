@@ -27,7 +27,7 @@ def main():
 						'r').read().decode('utf8').splitlines()
 	questions_lengths_val = open('../data/preprocessed/questions_lengths_val2014.txt', 
 								'r').read().decode('utf8').splitlines()
-	answers_val = open('../data/preprocessed/answers_val2014.txt', 
+	answers_val = open('../data/preprocessed/answers_val2014_all.txt', 
 						'r').read().decode('utf8').splitlines()
 	images_val = open('../data/preprocessed/images_val2014.txt', 
 						'r').read().decode('utf8').splitlines()
