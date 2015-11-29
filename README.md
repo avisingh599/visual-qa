@@ -25,6 +25,7 @@ Tested with Python 2.7 on Ubuntu 14.04 and Centos 7.1.
 1. Keras needs the latest Theano, which in turn needs Numpy/Scipy. 
 2. spaCy is currently used only for converting questions to a vector (or a sequence of vectors), this dependency can be easily be removed if you want to.
 3. spaCy uses Goldberg and Levy's word vectors by default, but I found the performance to be much superior with Stanford's [Glove word vectors](http://nlp.stanford.edu/projects/glove/).
+4. VQA Tools is no longer needed. 
 
 ##Installation Guide
 This project has a large number of dependecies, and I am yet to make a comprehensive installation guide. In the meanwhile, you can use the following guide made by @gajumaru4444:

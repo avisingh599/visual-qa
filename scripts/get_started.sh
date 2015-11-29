@@ -1,7 +1,6 @@
 #!/bin/sh
 #make other scripts executable
 chmod +x ../data/download.sh
-chmod +x ../3rdParty/download.sh
 chmod +x ../features/download.sh
 #download data and features
 cd ../data/
@@ -13,8 +12,8 @@ cd ../features/
 
 #convert the data to a simpler format
 cd ../scripts
-python dumpText.py
-python dumpText.py -isTrain 0
+python dumpText.py -split train -answers modal
+python dumpText.py -split val -answers all
 
 #train and evaluate models
 python trainMLP.py
