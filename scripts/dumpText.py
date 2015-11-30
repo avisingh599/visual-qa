@@ -35,6 +35,7 @@ def main():
 		annFile = '../data/mscoco_train2014_annotations.json'
 		quesFile = '../data/OpenEnded_mscoco_train2014_questions.json'
 		questions_file = open('../data/preprocessed/questions_train2014.txt', 'w')
+		questions_id_file = open('../data/preprocessed/questions_id_train2014.txt', 'w')
 		questions_lengths_file = open('../data/preprocessed/questions_lengths_train2014.txt', 'w')
 		if args.answers == 'modal':
 			answers_file = open('../data/preprocessed/answers_train2014_modal.txt', 'w')
@@ -46,6 +47,7 @@ def main():
 		annFile = '../data/mscoco_val2014_annotations.json'
 		quesFile = '../data/OpenEnded_mscoco_val2014_questions.json'
 		questions_file = open('../data/preprocessed/questions_val2014.txt', 'w')
+		questions_id_file = open('../data/preprocessed/questions_id_val2014.txt', 'w')
 		questions_lengths_file = open('../data/preprocessed/questions_lengths_val2014.txt', 'w')
 		if args.answers == 'modal':
 			answers_file = open('../data/preprocessed/answers_val2014_modal.txt', 'w')
@@ -56,12 +58,14 @@ def main():
 	elif args.split == 'test-dev':
 		quesFile = '../data/OpenEnded_mscoco_test-dev2015_questions.json'
 		questions_file = open('../data/preprocessed/questions_test-dev2015.txt', 'w')
+		questions_id_file = open('../data/preprocessed/questions_id_test-dev2015.txt', 'w')
 		questions_lengths_file = open('../data/preprocessed/questions_lengths_test-dev2015.txt', 'w')
 		coco_image_id = open('../data/preprocessed/images_test-dev2015.txt', 'w')
 		data_split = 'test-dev data'
 	elif args.split == 'test':
 		quesFile = '../data/OpenEnded_mscoco_test2015_questions.json'
 		questions_file = open('../data/preprocessed/questions_test2015.txt', 'w')
+		questions_id_file = open('../data/preprocessed/questions_id_test2015.txt', 'w')
 		questions_lengths_file = open('../data/preprocessed/questions_lengths_test2015.txt', 'w')
 		coco_image_id = open('../data/preprocessed/images_test2015.txt', 'w')
 		data_split = 'test data'
@@ -77,15 +81,12 @@ def main():
 		qa = qa['annotations']
 	
 	pbar = progressbar.ProgressBar()
-	print 'Dumping questions,answers, imageIDs, and questions lenghts to text files...'
+	print 'Dumping questions, answers, questionIDs, imageIDs, and questions lengths to text files...'
 	for i, q in pbar(zip(xrange(len(ques)),ques)):
-		questions_file.write(q['question'].encode('utf8'))
-		questions_file.write('\n'.encode('utf8'))
-		questions_lengths_file.write(str(len(nlp(q['question']))).encode('utf8'))
-		questions_lengths_file.write('\n'.encode('utf8'))
-
-		coco_image_id.write(str(q['image_id']).encode('utf8'))
-		coco_image_id.write('\n')
+		questions_file.write((q['question'] + '\n').encode('utf8'))
+		questions_lengths_file.write((str(len(nlp(q['question'])))+ '\n').encode('utf8'))
+		questions_id_file.write((str(q['image_id']) + '\n').encode('utf8'))
+		coco_image_id.write((str(q['image_id']) + '\n').encode('utf8'))
 		if args.split == 'train' or args.split == 'val':
 			if args.answers == 'modal':
 				answers_file.write(getModalAnswer(qa[i]['answers']).encode('utf8'))
