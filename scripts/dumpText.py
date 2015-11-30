@@ -85,8 +85,8 @@ def main():
 	for i, q in pbar(zip(xrange(len(ques)),ques)):
 		questions_file.write((q['question'] + '\n').encode('utf8'))
 		questions_lengths_file.write((str(len(nlp(q['question'])))+ '\n').encode('utf8'))
-		questions_id_file.write((str(q['image_id']) + '\n').encode('utf8'))
-		coco_image_id.write((str(q['question_id']) + '\n').encode('utf8'))
+		questions_id_file.write((str(q['question_id']) + '\n').encode('utf8'))
+		coco_image_id.write((str(q['image_id']) + '\n').encode('utf8'))
 		if args.split == 'train' or args.split == 'val':
 			if args.answers == 'modal':
 				answers_file.write(getModalAnswer(qa[i]['answers']).encode('utf8'))

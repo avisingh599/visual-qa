@@ -64,8 +64,8 @@ def main():
 		y_predict = model.predict_classes(X_batch, verbose=0)
 		y_predict_text.extend(labelencoder.inverse_transform(y_predict))
 
-	correct_val=0
-	incorrect_val=0	
+	correct_val=0.0
+	total=0	
 	f1 = open(args.results, 'w')
 
 	for prediction, truth, question, image in zip(y_predict_text, answers_val, questions_val, images_val):
@@ -77,8 +77,9 @@ def main():
 		if temp_count>2:
 			correct_val+=1
 		else:
-			incorrect_val+=1
+			correct_val+= float(temp_count)/3
 
+		total+=1
 		f1.write(question.encode('utf-8'))
 		f1.write('\n')
 		f1.write(image.encode('utf-8'))
@@ -89,13 +90,13 @@ def main():
 		f1.write('\n')
 		f1.write('\n')
 
-	f1.write('Final Accuracy is ' + str(float(correct_val)/(incorrect_val+correct_val)))
+	f1.write('Final Accuracy is ' + str(correct_val/total))
 	f1.close()
 	f1 = open('../results/overall_results.txt', 'a')
 	f1.write(args.weights + '\n')
-	f1.write(str(float(correct_val)/(incorrect_val+correct_val)) + '\n')
+	f1.write(str(correct_val/total) + '\n')
 	f1.close()
-	print 'Final Accuracy on the validation set is', float(correct_val)/(incorrect_val+correct_val)
+	print 'Final Accuracy on the validation set is', correct_val/total
 
 if __name__ == "__main__":
 	main()

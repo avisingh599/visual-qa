@@ -25,7 +25,7 @@ Tested with Python 2.7 on Ubuntu 14.04 and Centos 7.1.
 1. Keras needs the latest Theano, which in turn needs Numpy/Scipy. 
 2. spaCy is currently used only for converting questions to a vector (or a sequence of vectors), this dependency can be easily be removed if you want to.
 3. spaCy uses Goldberg and Levy's word vectors by default, but I found the performance to be much superior with Stanford's [Glove word vectors](http://nlp.stanford.edu/projects/glove/).
-4. VQA Tools is no longer needed. 
+4. VQA Tools is **not** needed. 
 
 ##Installation Guide
 This project has a large number of dependecies, and I am yet to make a comprehensive installation guide. In the meanwhile, you can use the following guide made by @gajumaru4444:
@@ -41,13 +41,15 @@ Take a look at `scripts/demo_batch.py`. An LSTM-based pre-trained model has been
 **Caution**: Use the pre-trained model with 300D Common Crawl Glove Word Embeddings. Do not the the default spaCy embeddings (Goldberg and Levy 2014). If you try to use these pre-trained models with any embeddings except Glove, your results would be **garbage**. You can find more deatails [here](http://spacy.io/tutorials/load-new-word-vectors/) on how to do this. 
 
 ##The Numbers
-Performance on the **validation set** of the [VQA Challenge](http://visualqa.org/challenge.html):
+Performance on the **validation set** and the **test-dev set** of the [VQA Challenge](http://visualqa.org/challenge.html):
 
-| Model     		   | Accuracy      |
-| ---------------------|:-------------:|
-| BOW+CNN              | 44.30%		   |
-| LSTM-Language only   | 42.51%        |
-| LSTM+CNN             | 47.80%        |
+| Model     		   | val           | test-dev      |
+| ---------------------|:-------------:|:-------------:|
+| BOW+CNN              | 48.46%		   | TODO		   |
+| LSTM-Language only   | 44.17%        | TODO          |
+| LSTM+CNN             | 51.63%        | 53.34%        |
+
+Note: For validation set, the model was trained on the training set, while it was trained on both training and validation set for the test-dev set results.
 
 There is a **lot** of scope for hyperparameter tuning here. Experiments were done for 100 epochs. 
 
