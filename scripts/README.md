@@ -19,3 +19,9 @@ Here is the utility of the various files:
 9. `features.py`: Contains functions that are used to convert images and words to vectors (or sequences of vectors). 
 
 10. `utils.py`: Exactly what you think.
+
+11. `own_image.py`: Use your own image. Caffe installation required
+
+12. `extract_features.py`: Extract 4096D VGG features from a VGG Caffe Model
+
+13. `vgg_features.prototxt`: VGG Caffe Model Definition 
