@@ -22,7 +22,7 @@ def main():
    parser.add_argument('--sample_size', type=int, default=25)
    parser.add_argument('--caffe', help='path to caffe installation')
    parser.add_argument('--model_def', help='path to model definition prototxt')
-   parser.add_argument('--vggmodel', help='path to model parameters')
+   parser.add_argument('--vggmodel', default='VGG_ILSVRC_16_layers.caffemodel', help='path to model parameters')
    args = parser.parse_args()
    print 'Loading Word2vec'
    nlp = English()
@@ -41,7 +41,7 @@ def main():
        path = str(raw_input('Enter path to image : '))
        if path != 'same':
            base_dir = os.path.dirname(path)
-           os.system('python extract_features.py --caffe ' + str(args.caffe) + ' --model_def vgg_features.prototxt --gpu --model VGG_ILSVRC_16_layers.caffemodel --image ' + path )
+           os.system('python extract_features.py --caffe ' + str(args.caffe) + ' --model_def vgg_features.prototxt --gpu --model ' + str(args.vggmodel) + ' --image ' + path )
        print 'Loading VGGfeats'
        vgg_model_path = os.path.join(base_dir + '/vgg_feats.mat')
        features_struct = scipy.io.loadmat(vgg_model_path)
