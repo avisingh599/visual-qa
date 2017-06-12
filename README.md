@@ -35,7 +35,7 @@ This project has a large number of dependecies, and I am yet to make a comprehen
 1. [Prepare for VQA in Ubuntu 14.04 x64 Part 1](https://gajumaru4444.github.io/2015/11/10/Visual-Question-Answering-2.html)
 2. [Prepare for VQA in Ubuntu 14.04 x64 Part 2](https://gajumaru4444.github.io/2015/11/18/Visual-Question-Answering-3.html)
 
-If you intend to use my pre-trained models, you would also need to replace spaCy's deafult word vectors with the GloVe word vectors from Stanford. You can find more details [here](http://spacy.io/tutorials/load-new-word-vectors/) on how to do this.
+If you intend to use my pre-trained models, you would also need to replace spaCy's default word vectors with the GloVe word vectors from Stanford. You can find more details [here](http://spacy.io/tutorials/load-new-word-vectors/) on how to do this.
 
 ## Using Pre-trained models
 Take a look at `scripts/demo_batch.py`. An LSTM-based pre-trained model has been released. It currently works only on the images of the MS COCO dataset (need to be downloaded separately), since I have pre-computed the VGG features for them. I do intend to add a pipeline for computing features for other images.
