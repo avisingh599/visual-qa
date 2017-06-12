@@ -3,6 +3,7 @@ from progressbar import Bar, ETA, Percentage, ProgressBar
 from keras.models import model_from_json
 
 from spacy.en import English
+import spacy
 import numpy as np
 import scipy.io
 from sklearn.externals import joblib
@@ -16,6 +17,7 @@ def main():
 	parser.add_argument('-model', type=str, required=True)
 	parser.add_argument('-weights', type=str, required=True)
 	parser.add_argument('-results', type=str, required=True)
+	parser.add_argument('-word_vector', type=str, default='')
 	args = parser.parse_args()
 
 	model = model_from_json(open(args.model).read())
@@ -46,8 +48,13 @@ def main():
 		id_split = ids.split()
 		img_map[id_split[0]] = int(id_split[1])
 
-	nlp = English()
-	print 'Loaded word2vec features'
+	if args.word_vector == 'glove':
+            nlp = spacy.load('en', vectors='en_glove_cc_300_1m_vectors')
+        else:
+            nlp = English()
+
+	print 'loaded ' + args.word_vector + ' word2vec features...'
+
 
 	nb_classes = 1000
 	y_predict_text = []

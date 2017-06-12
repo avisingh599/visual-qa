@@ -26,8 +26,8 @@ def main():
 	local_images = [ f for f in listdir(image_dir) if isfile(join(image_dir,f)) ]	
 	
 	parser = argparse.ArgumentParser()
-	parser.add_argument('-model', type=str, default='../models/lstm_1_num_hidden_units_lstm_512_num_hidden_units_mlp_1024_num_hidden_layers_mlp_3.json')
-	parser.add_argument('-weights', type=str, default='../models/lstm_1_num_hidden_units_lstm_512_num_hidden_units_mlp_1024_num_hidden_layers_mlp_3_epoch_070.hdf5')
+	parser.add_argument('-model', type=str, default='../models/lstm_1_num_hidden_units_lstm_512_num_hidden_units_mlp_1024_num_hidden_layers_mlp_3_num_hidden_layers_lstm_1.json')
+	parser.add_argument('-weights', type=str, default='../models/lstm_1_num_hidden_units_lstm_512_num_hidden_units_mlp_1024_num_hidden_layers_mlp_3_num_hidden_layers_lstm_1_epoch_199.hdf5')
 	parser.add_argument('-sample_size', type=int, default=25)
 	args = parser.parse_args()
 	

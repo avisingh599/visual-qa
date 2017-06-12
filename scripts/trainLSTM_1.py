@@ -1,4 +1,5 @@
 import numpy as np
+import spacy
 import scipy.io
 import sys
 import argparse
@@ -29,6 +30,7 @@ def main():
 	parser.add_argument('-num_epochs', type=int, default=100)
 	parser.add_argument('-model_save_interval', type=int, default=5)
 	parser.add_argument('-batch_size', type=int, default=128)
+	parser.add_argument('-word_vector', type=str, default='')
 	#TODO Feature parser.add_argument('-resume_training', type=str)
 	#TODO Feature parser.add_argument('-language_only', type=bool, default= False)
 	args = parser.parse_args()
@@ -94,8 +96,13 @@ def main():
 		id_split = ids.split()
 		img_map[id_split[0]] = int(id_split[1])
 
-	nlp = English()
-	print 'loaded word2vec features...'
+        # Code to choose the word vectors, default is Goldberg but GLOVE is preferred
+        if args.word_vector == 'glove':
+            nlp = spacy.load('en', vectors='en_glove_cc_300_1m_vectors')
+        else:
+            nlp = English()
+
+	print 'loaded ' + args.word_vector + ' word2vec features...'
 	## training
 	print 'Training started...'
 	for k in xrange(args.num_epochs):
@@ -110,7 +117,8 @@ def main():
 			X_i_batch = get_images_matrix(im_batch, img_map, VGGfeatures)
 			Y_batch = get_answers_matrix(an_batch, labelencoder)
 			loss = model.train_on_batch([X_q_batch, X_i_batch], Y_batch)
-			progbar.add(args.batch_size, values=[("train loss", loss)])
+			# fix for the Keras v0.3 issue #9
+			progbar.add(args.batch_size, values=[("train loss", loss[0])])
 
 		
 		if k%args.model_save_interval == 0:

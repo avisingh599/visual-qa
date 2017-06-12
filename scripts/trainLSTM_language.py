@@ -3,6 +3,7 @@ from random import shuffle
 import argparse
 
 import numpy as np
+import spacy
 
 from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation
@@ -23,6 +24,10 @@ def main():
 	parser.add_argument('-num_lstm_layers', type=int, default=2)
 	parser.add_argument('-dropout', type=float, default=0.2)
 	parser.add_argument('-activation', type=str, default='tanh')
+	parser.add_argument('-num_epochs', type=int, default=100)
+	parser.add_argument('-model_save_interval', type=int, default=5)
+	parser.add_argument('-batch_size', type=int, default=128)
+	parser.add_argument('-word_vector', type=str, default='')
 	args = parser.parse_args()
 
 	questions_train = open('../data/preprocessed/questions_train2014.txt', 'r').read().decode('utf8').splitlines()
@@ -60,29 +65,33 @@ def main():
 	print 'Compilation done...'
 
 	#set up word vectors
-	nlp = English()
-	print 'loaded word2vec features...'
+        # Code to choose the word vectors, default is Goldberg but GLOVE is preferred
+        if args.word_vector == 'glove':
+            nlp = spacy.load('en', vectors='en_glove_cc_300_1m_vectors')
+        else:
+            nlp = English()
+
+	print 'loaded ' + args.word_vector + ' word2vec features...'
 
 	## training
+        # Moved few variables to args.parser (num_epochs, batch_size, model_save_interval)
 	print 'Training started...'
-	numEpochs = 100
-	model_save_interval = 5
-	batchSize = 128
-	for k in xrange(numEpochs):
+	for k in xrange(args.num_epochs):
 
 		progbar = generic_utils.Progbar(len(questions_train))
 
-		for qu_batch,an_batch,im_batch in zip(grouper(questions_train, batchSize, fillvalue=questions_train[0]), 
-												grouper(answers_train, batchSize, fillvalue=answers_train[0]), 
-												grouper(images_train, batchSize, fillvalue=images_train[0])):
+		for qu_batch,an_batch,im_batch in zip(grouper(questions_train, args.batch_size, fillvalue=questions_train[0]), 
+												grouper(answers_train, args.batch_size, fillvalue=answers_train[0]), 
+												grouper(images_train, args.batch_size, fillvalue=images_train[0])):
 			timesteps = len(nlp(qu_batch[-1])) #questions sorted in descending order of length
 			X_q_batch = get_questions_tensor_timeseries(qu_batch, nlp, timesteps)
 			Y_batch = get_answers_matrix(an_batch, labelencoder)
 			loss = model.train_on_batch(X_q_batch, Y_batch)
-			progbar.add(batchSize, values=[("train loss", loss)])
+			# fix for the Keras v0.3 issue #9
+			progbar.add(args.batch_size, values=[("train loss", loss[0])])
 
 		
-		if k%model_save_interval == 0:
+		if k%args.model_save_interval == 0:
 			model.save_weights(model_file_name + '_epoch_{:02d}.hdf5'.format(k))
 
 	model.save_weights(model_file_name + '_epoch_{:02d}.hdf5'.format(k+1))

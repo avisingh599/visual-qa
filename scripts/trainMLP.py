@@ -3,6 +3,7 @@ from random import shuffle
 import argparse
 
 import numpy as np
+import spacy
 import scipy.io
 
 from keras.models import Sequential
@@ -29,6 +30,7 @@ def main():
 	parser.add_argument('-num_epochs', type=int, default=100)
 	parser.add_argument('-model_save_interval', type=int, default=10)
 	parser.add_argument('-batch_size', type=int, default=128)
+	parser.add_argument('-word_vector', type=str, default='')
 	args = parser.parse_args()
 
 	questions_train = open('../data/preprocessed/questions_train2014.txt', 'r').read().decode('utf8').splitlines()
@@ -53,8 +55,13 @@ def main():
 		id_split = ids.split()
 		id_map[id_split[0]] = int(id_split[1])
 
-	nlp = English()
-	print 'loaded word2vec features...'
+        # Code to choose the word vectors, default is Goldberg but GLOVE is preferred
+        if args.word_vector == 'glove':
+            nlp = spacy.load('en', vectors='en_glove_cc_300_1m_vectors')
+        else:
+            nlp = English()
+
+	print 'loaded ' + args.word_vector + ' word2vec features...'
 	img_dim = 4096
 	word_vec_dim = 300
 
@@ -105,7 +112,8 @@ def main():
 				X_batch = np.hstack((X_q_batch, X_i_batch))
 			Y_batch = get_answers_matrix(an_batch, labelencoder)
 			loss = model.train_on_batch(X_batch, Y_batch)
-			progbar.add(args.batch_size, values=[("train loss", loss)])
+			# fix for the Keras v0.3 issue #9
+			progbar.add(args.batch_size, values=[("train loss", loss[0])])
 		#print type(loss)
 		if k%args.model_save_interval == 0:
 			model.save_weights(model_file_name + '_epoch_{:02d}.hdf5'.format(k))
