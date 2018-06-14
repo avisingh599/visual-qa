@@ -26,7 +26,7 @@ def main():
 						'r').read().decode('utf8').splitlines()
 	answers_val = open('../data/preprocessed/answers_val2014_all.txt', 
 						'r').read().decode('utf8').splitlines()
-	images_val = open('../data/preprocessed/images_val2014.txt', 
+	images_val = open('../data/preprocessed/images_val2014_all.txt', 
 						'r').read().decode('utf8').splitlines()
 	vgg_model_path = '../features/coco/vgg_feats.mat'
 	

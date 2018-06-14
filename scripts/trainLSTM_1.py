@@ -4,7 +4,8 @@ import sys
 import argparse
 
 from keras.models import Sequential
-from keras.layers.core import Dense, Activation, Merge, Dropout, Reshape
+from keras.layers.core import Dense, Activation, Dropout, Reshape
+from keras.layers import Merge
 from keras.layers.recurrent import LSTM
 from keras.utils import np_utils, generic_utils
 from keras.callbacks import ModelCheckpoint, RemoteMonitor
@@ -21,7 +22,7 @@ from features import get_images_matrix, get_answers_matrix, get_questions_tensor
 def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-num_hidden_units_mlp', type=int, default=1024)
-	parser.add_argument('-num_hidden_units_lstm', type=int, default=512)
+	parser.add_argument('-num_hidden_units_lstm', type=int, default=4096)
 	parser.add_argument('-num_hidden_layers_mlp', type=int, default=3)
 	parser.add_argument('-num_hidden_layers_lstm', type=int, default=1)
 	parser.add_argument('-dropout', type=float, default=0.5)
@@ -56,13 +57,14 @@ def main():
 	joblib.dump(labelencoder,'../models/labelencoder.pkl')
 	
 	image_model = Sequential()
-	image_model.add(Reshape(input_shape = (img_dim,), dims=(img_dim,)))
+	#image_model.add(Reshape(input_shape = (img_dim,), dims=(img_dim,)))
+	image_model.add(Reshape((4096,), input_shape=(4096,)))#input_shape = (img_dim,), dims=(img_dim,)))
 
 	language_model = Sequential()
 	if args.num_hidden_layers_lstm == 1:
-		language_model.add(LSTM(output_dim = args.num_hidden_units_lstm, return_sequences=False, input_shape=(max_len, word_vec_dim)))
+		language_model.add(LSTM(output_dim = args.num_hidden_units_lstm, return_sequences=False, input_shape=(None, word_vec_dim)))
 	else:
-		language_model.add(LSTM(output_dim = args.num_hidden_units_lstm, return_sequences=True, input_shape=(max_len, word_vec_dim)))
+		language_model.add(LSTM(output_dim = args.num_hidden_units_lstm, return_sequences=True, input_shape=(None, word_vec_dim)))
 		for i in xrange(args.num_hidden_layers_lstm-2):
 			language_model.add(LSTM(output_dim = args.num_hidden_units_lstm, return_sequences=True))
 		language_model.add(LSTM(output_dim = args.num_hidden_units_lstm, return_sequences=False))
@@ -109,6 +111,7 @@ def main():
 			X_q_batch = get_questions_tensor_timeseries(qu_batch, nlp, timesteps)
 			X_i_batch = get_images_matrix(im_batch, img_map, VGGfeatures)
 			Y_batch = get_answers_matrix(an_batch, labelencoder)
+			print X_q_batch.shape
 			loss = model.train_on_batch([X_q_batch, X_i_batch], Y_batch)
 			progbar.add(args.batch_size, values=[("train loss", loss)])
 

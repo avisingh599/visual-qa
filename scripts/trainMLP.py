@@ -22,13 +22,13 @@ def main():
 
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-num_hidden_units', type=int, default=1024)
-	parser.add_argument('-num_hidden_layers', type=int, default=3)
-	parser.add_argument('-dropout', type=float, default=0.5)
+	parser.add_argument('-num_hidden_layers', type=int, default=5)
+	parser.add_argument('-dropout', type=float, default=0.2)
 	parser.add_argument('-activation', type=str, default='tanh')
 	parser.add_argument('-language_only', type=bool, default= False)
-	parser.add_argument('-num_epochs', type=int, default=100)
+	parser.add_argument('-num_epochs', type=int, default=50)
 	parser.add_argument('-model_save_interval', type=int, default=10)
-	parser.add_argument('-batch_size', type=int, default=128)
+	parser.add_argument('-batch_size', type=int, default=256)
 	args = parser.parse_args()
 
 	questions_train = open('../data/preprocessed/questions_train2014.txt', 'r').read().decode('utf8').splitlines()
@@ -42,7 +42,7 @@ def main():
 	labelencoder = preprocessing.LabelEncoder()
 	labelencoder.fit(answers_train)
 	nb_classes = len(list(labelencoder.classes_))
-	joblib.dump(labelencoder,'../models/labelencoder.pkl')
+	joblib.dump(labelencoder,'../models3/labelencoder.pkl')
 
 	features_struct = scipy.io.loadmat(vgg_model_path)
 	VGGfeatures = features_struct['feats']
@@ -76,9 +76,9 @@ def main():
 
 	json_string = model.to_json()
 	if args.language_only:
-		model_file_name = '../models/mlp_language_only_num_hidden_units_' + str(args.num_hidden_units) + '_num_hidden_layers_' + str(args.num_hidden_layers)
+		model_file_name = '../models3/mlp_language_only_num_hidden_units_' + str(args.num_hidden_units) + '_num_hidden_layers_' + str(args.num_hidden_layers)
 	else:
-		model_file_name = '../models/mlp_num_hidden_units_' + str(args.num_hidden_units) + '_num_hidden_layers_' + str(args.num_hidden_layers)		
+		model_file_name = '../models3/mlp_num_hidden_units_' + str(args.num_hidden_units) + '_num_hidden_layers_' + str(args.num_hidden_layers)		
 	open(model_file_name  + '.json', 'w').write(json_string)
 
 	print 'Compiling model...'
